@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Добавить пользователя{% endblock %}
+
+{% block body %}
+<h2>Добавить пользователя</h2>
+
+{{ form_start(form) }}
+    <div class="mb-3">{{ form_widget(form.email, { 'attr': {'class': 'form-control'} }) }}</div>
+    <div class="mb-3">{{ form_widget(form.password, { 'attr': {'class': 'form-control'} }) }}</div>
+    <div class="mb-3">{{ form_widget(form.roles, { 'attr': {'class': 'form-select'} }) }}</div>
+    <button type="submit" class="btn btn-success w-100">Сохранить</button>
+{{ form_end(form) }}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Добавить дисциплины{% endblock %}
+
+{% block body %}
+<h2>Добавить дисциплины</h2>
+
+{{ form_start(form) }}
+    <div class="mb-3">
+        {{ form_label(form.name, 'Имя дисциплины') }}
+        {{ form_widget(form.name, { 'attr': {'class': 'form-control'} }) }}
+    </div>
+    <div class="mb-3">
+        {{ form_label(form.teacher, 'преподаватель') }}
+        {{ form_widget(form.teacher, { 'attr': {'class': 'form-control'} }) }}
+    </div>
+    <button type="submit" class="btn btn-primary">Добавить</button>
+{{ form_end(form) }}
+
+<a href="{{ path('admin_disciplines') }}" class="btn btn-secondary mt-3">Вернуться назад</a>
+{% endblock %}

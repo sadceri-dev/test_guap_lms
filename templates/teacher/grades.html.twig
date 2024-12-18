@@ -1,0 +1,30 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Score</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for grade in grades %}
+            <tr>
+                <td>
+                    {% if grade.student %}
+                        {{ grade.student.name or grade.student.email }}
+                    {% else %}
+                        <em>No student assigned</em>
+                    {% endif %}
+                </td>
+                <td>{{ grade.score }}</td>
+                <td>
+                    <a href="{{ path('teacher_edit_grade', {disciplineId: discipline.id, gradeId: grade.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center">No grades found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

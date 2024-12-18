@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Назначение преподавателя{% endblock %}
+
+{% block body %}
+<h2>Назначение преподавателя для дисциплины: {{ discipline.name }}</h2>
+
+<div class="mb-3">
+    <a href="{{ path('admin_disciplines') }}" class="btn btn-secondary">Назад</a>
+</div>
+
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-primary mt-3">Сохранить</button>
+{{ form_end(form) }}
+{% endblock %}

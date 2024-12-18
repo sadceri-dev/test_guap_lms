@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Панель администратора{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="d-flex flex-column align-items-start gap-3">
+            <a href="{{ path('admin_users') }}" class="btn btn-primary w-100 text-start">Управление пользователями</a>
+            <a href="{{ path('admin_disciplines') }}" class="btn btn-secondary w-100 text-start">Управление дисциплинами</a>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <h2>Добро пожаловать в панель администратора</h2>
+        <p>Выберите доступные опции.</p>
+    </div>
+</div>
+{% endblock %}

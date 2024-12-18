@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Discipline{% endblock %}
+
+{% block body %}
+<h2>Edit Discipline</h2>
+
+{{ form_start(form) }}
+    <div class="mb-3">
+        {{ form_label(form.name, 'Discipline Name') }}
+        {{ form_widget(form.name, { 'attr': {'class': 'form-control'} }) }}
+    </div>
+    <div class="mb-3">
+        {{ form_label(form.teacher, 'Teacher') }}
+        {{ form_widget(form.teacher, { 'attr': {'class': 'form-control'} }) }}
+    </div>
+    <button type="submit" class="btn btn-success">Save Changes</button>
+{{ form_end(form) }}
+
+<a href="{{ path('admin_disciplines') }}" class="btn btn-secondary mt-3">Back to Disciplines</a>
+{% endblock %}

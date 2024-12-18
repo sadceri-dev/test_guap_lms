@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Управление дисциплинами{% endblock %}
+
+{% block body %}
+    <h2 class="mb-4">Управление дисциплинами</h2>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addDisciplineModal">Добавить Дисциплину</button>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Преподаватель</th>
+                <th>Студенты</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for discipline in disciplines %}
+                <tr>
+                    <td>{{ discipline.id }}</td>
+                    <td>{{ discipline.name }}</td>
+                    <td>{{ discipline.teacher ? discipline.teacher.email : 'Не назначен' }}</td>
+                    <td>
+                        {% if discipline.students is not empty %}
+                            {% for student in discipline.students %}
+                                {{ student.email }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <em>Нет студентов</em>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('admin_edit_discipline', { id: discipline.id }) }}" class="btn btn-warning btn-sm">Редактировать</a>
+                        <a href="{{ path('admin_delete_discipline', { id: discipline.id }) }}" class="btn btn-danger btn-sm">Удалить</a>
+                        <a href="{{ path('admin_assign_teacher', { id: discipline.id }) }}" class="btn btn-info btn-sm">Назначить Преподавателя</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">Дисциплины не найдены.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Модальное окно -->
+    <div class="modal fade" id="addDisciplineModal" tabindex="-1" aria-labelledby="addDisciplineModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDisciplineModalLabel">Добавить Дисциплину</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(form) }}
+                        {{ form_row(form.name, { 'attr': {'class': 'form-control'} }) }}
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Сохранить</button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

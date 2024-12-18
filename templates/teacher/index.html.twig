@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Панель учителя{% endblock %}
+
+{% block body %}
+<h2>Панель учителя</h2>
+
+<a href="{{ path('teacher_add_discipline') }}" class="btn btn-primary mb-3">Add Discipline</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Discipline Name</th>
+            <th>Students</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for discipline in disciplines %}
+            <tr>
+                <td>{{ discipline.name }}</td>
+                <td>
+                    {% if discipline.students is not empty %}
+                        <ul>
+                            {% for student in discipline.students %}
+                                <li>
+                                    {{ student.name or student.email }}
+                                    <a href="{{ path('teacher_grade_student', { disciplineId: discipline.id, studentId: student.id }) }}" class="btn btn-sm btn-success ms-2">Grade</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <em>No students assigned</em>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('teacher_edit_discipline', { id: discipline.id }) }}" class="btn btn-warning btn-sm">Edit</a>
+                </td>
+                <td>
+                    <a href="{{ path('teacher_assign_students', { id: discipline.id }) }}" class="btn btn-sm btn-info">Assign Students</a>
+                </td>
+
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center">No disciplines found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

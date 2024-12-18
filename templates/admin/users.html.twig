@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Управление пользователями{% endblock %}
+
+{% block body %}
+    <h2>Управление пользователями</h2>
+
+    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Добавить</button>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.roles|join(', ') }}</td>
+                    <td>
+                        <a href="{{ path('admin_edit_user', {id: user.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{{ path('admin_delete_user', {id: user.id}) }}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">Пользователи не найдены.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {# Modal for adding user #}
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Добавить пользователя</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ form_start(form) }}
+                    {{ form_row(form._token) }} {# CSRF protection #}
+                    {{ form_row(form.email, { 'attr': {'class': 'form-control'} }) }}
+                    {{ form_row(form.password, { 'attr': {'class': 'form-control'} }) }}
+                    {{ form_row(form.roles, { 'attr': {'class': 'form-select'} }) }}
+                    <button type="submit" class="btn btn-primary w-100">Save</button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

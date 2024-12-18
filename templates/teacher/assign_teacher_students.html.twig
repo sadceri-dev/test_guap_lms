@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Назначить студентов{% endblock %}
+
+{% block body %}
+<h2>Назначить студентов для дисциплины: {{ discipline.name }}</h2>
+
+{{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-primary mt-3">Сохранить</button>
+{{ form_end(form) }}
+
+<a href="{{ path('teacher_dashboard') }}" class="btn btn-secondary mt-3">Назад</a>
+{% endblock %}

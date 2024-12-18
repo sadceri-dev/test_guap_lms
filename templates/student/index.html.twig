@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block body %}
+<h2>Welcome, {{ app.user.email }}</h2>
+
+<h3>Your Disciplines</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Discipline</th>
+            <th>Grade</th>
+            <th>Teacher</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for grade in grades %}
+            <tr>
+                <td>{{ grade.discipline.name }}</td>
+                <td>{{ grade.score }}</td>
+                <td>{{ grade.discipline.teacher.email }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center">No disciplines assigned yet.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Available Disciplines</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Discipline</th>
+            <th>Teacher</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for discipline in disciplines %}
+            <tr>
+                <td>{{ discipline.name }}</td>
+                <td>{{ discipline.teacher ? discipline.teacher.email : 'No teacher assigned' }}</td>
+                <td>
+                    <a href="{{ path('student_attach_discipline', { id: discipline.id }) }}" class="btn btn-sm btn-primary">Attach</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center">No available disciplines.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
