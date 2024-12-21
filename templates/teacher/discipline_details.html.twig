@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Детали дисциплины{% endblock %}
+
+{% block body %}
+<h2>{{ discipline.name }}</h2>
+
+<a href="{{ path('teacher_dashboard') }}" class="btn btn-secondary mb-3">Вернуться назад</a>
+
+<h3>Студенты</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Студенты</th>
+            <th>Оценка</th>
+            <th>Файлы</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+            <tr>
+                <td>{{ student.email }}</td>
+                <td>
+                    {% set grade = grades|filter(g => g.student.id == student.id)|first %}
+                    {{ grade ? grade.score : 'Не оценено' }}
+                </td>
+                <td>
+                    {% if grade and grade.file %}
+                        <a href="{{ asset('uploads/' ~ grade.file) }}" target="_blank" class="btn btn-sm btn-info">Посмотреть файл</a>
+                    {% else %}
+                        <em>Файл не загружен</em>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('teacher_edit_grade', { disciplineId: discipline.id, studentId: student.id }) }}" class="btn btn-sm btn-warning">Оценить</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4" class="text-center">Нет зачисленных студентов.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

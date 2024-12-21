@@ -6,10 +6,12 @@ use App\Entity\Discipline;
 use App\Form\UserType;
 use App\Form\DisciplineType;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AdminController extends AbstractController
 {
@@ -40,21 +42,88 @@ class AdminController extends AbstractController
     }
 
     #[Route('/admin/users/add', name: 'admin_add_user')]
-    public function addUser(Request $request, EntityManagerInterface $em): Response
-    {
+    public function addUser(
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
 
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
+            // Хэширование пароля
+            $hashedPassword = $passwordHasher->hashPassword(
+                $user,
+                $user->getPassword()
+            );
+            $user->setPassword($hashedPassword);
+
+            // Привязка дисциплин для студентов
+            if (in_array('ROLE_STUDENT', $user->getRoles())) {
+                foreach ($form->get('disciplines')->getData() as $discipline) {
+                    $discipline->addStudent($user);
+                    $em->persist($discipline);
+                }
+            }
+
             $em->persist($user);
             $em->flush();
+
+            $this->addFlash('success', 'User added successfully!');
             return $this->redirectToRoute('admin_users');
         }
 
-        return $this->render('admin/add_user.html.twig', ['form' => $form->createView()]);
+        return $this->render('admin/add_user.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
+
+    #[Route('/admin/discipline/{id}/assign-students', name: 'admin_assign_students')]
+public function assignStudents(
+    int $id,
+    Request $request,
+    EntityManagerInterface $em
+): Response {
+    $discipline = $em->getRepository(Discipline::class)->find($id);
+
+    if (!$discipline) {
+        throw $this->createNotFoundException('Discipline not found.');
+    }
+
+    // Получить всех студентов (роль ROLE_STUDENT)
+    $students = $em->getRepository(User::class)->findByRole('ROLE_STUDENT');
+
+    $form = $this->createFormBuilder($discipline)
+        ->add('students', EntityType::class, [
+            'class' => User::class,
+            'choices' => $students,
+            'choice_label' => 'email',
+            'multiple' => true,
+            'expanded' => true,
+        ])
+        ->setAction($this->generateUrl('admin_assign_students', ['id' => $discipline->getId()]))
+        ->getForm();
+
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->persist($discipline);
+        $em->flush();
+
+        $this->addFlash('success', 'Students assigned successfully!');
+        return $this->redirectToRoute('admin_dashboard');
+    }
+
+    return $this->render('admin/assign_students.html.twig', [
+        'discipline' => $discipline,
+        'form' => $form->createView(),
+    ]);
+}
+
+    
     #[Route('/admin/users/edit/{id}', name: 'admin_edit_user')]
     public function editUser(User $user, Request $request, EntityManagerInterface $em): Response
     {
@@ -137,7 +206,7 @@ class AdminController extends AbstractController
         $teachers = $em->getRepository(User::class)->findByRole('ROLE_TEACHER');
 
         $form = $this->createFormBuilder($discipline)
-            ->add('teacher', \Symfony\Bridge\Doctrine\Form\Type\EntityType::class, [
+            ->add('teacher', EntityType::class, [
                 'class' => User::class,
                 'choices' => $teachers,
                 'choice_label' => 'email',

@@ -23,8 +23,8 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.roles|join(', ') }}</td>
                     <td>
-                        <a href="{{ path('admin_edit_user', {id: user.id}) }}" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="{{ path('admin_delete_user', {id: user.id}) }}" class="btn btn-sm btn-danger">Delete</a>
+                        <a href="{{ path('admin_edit_user', {id: user.id}) }}" class="btn btn-sm btn-warning">Редактировать</a>
+                        <a href="{{ path('admin_delete_user', {id: user.id}) }}" class="btn btn-sm btn-danger">Удалить</a>
                     </td>
                 </tr>
             {% else %}
@@ -41,17 +41,19 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addUserModalLabel">Добавить пользователя</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
                 </div>
                 <div class="modal-body">
-                    {{ form_start(form) }}
-                    {{ form_row(form._token) }} {# CSRF protection #}
-                    {{ form_row(form.email, { 'attr': {'class': 'form-control'} }) }}
-                    {{ form_row(form.password, { 'attr': {'class': 'form-control'} }) }}
-                    {{ form_row(form.roles, { 'attr': {'class': 'form-select'} }) }}
-                    <button type="submit" class="btn btn-primary w-100">Save</button>
-                    {{ form_end(form) }}
-                </div>
+                {{ form_start(form) }}
+                {{ form_row(form._token) }}
+                {{ form_row(form.email, { 'attr': {'class': 'form-control'} }) }}
+                {{ form_row(form.password, { 'attr': {'class': 'form-control'} }) }}
+                {{ form_row(form.roles, { 'attr': {'class': 'form-select'} }) }}
+                {{ form_row(form.disciplines, { 'attr': {'class': 'form-check' } }) }}
+                <button type="submit" class="btn btn-primary w-100 mt-3">Сохранитьve</button>
+                {{ form_end(form) }}
+            </div>
+
             </div>
         </div>
     </div>

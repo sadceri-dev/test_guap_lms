@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Submissions for {{ discipline.name }}{% endblock %}
+
+{% block body %}
+<h2>Submissions for {{ discipline.name }}</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>File</th>
+            <th>Submitted At</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for submission in submissions %}
+            <tr>
+                <td>{{ submission.student.email }}</td>
+                <td><a href="{{ asset('uploads/' ~ submission.filename) }}" target="_blank">Download</a></td>
+                <td>{{ submission.submittedAt|date('Y-m-d H:i') }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center">No submissions found.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

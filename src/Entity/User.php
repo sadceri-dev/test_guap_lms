@@ -5,6 +5,8 @@ namespace App\Entity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity()]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -22,6 +24,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'json')]
     private array $roles = [];
+
+    public function __construct()
+    {
+        $this->disciplines = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -80,5 +87,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->email; // Или другое поле, которое имеет строковое представление пользователя
     }
+
+    #[ORM\ManyToMany(targetEntity: Discipline::class, mappedBy: 'students')]
+    private $disciplines;
+
+    
+
+    public function getDisciplines(): Collection
+    {
+        return $this->disciplines;
+    }
+
+    public function addDiscipline(Discipline $discipline): self
+    {
+        if (!$this->disciplines->contains($discipline)) {
+            $this->disciplines[] = $discipline;
+            $discipline->addStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDiscipline(Discipline $discipline): self
+    {
+        if ($this->disciplines->removeElement($discipline)) {
+            $discipline->removeStudent($this);
+        }
+
+        return $this;
+    }
+
 }
 

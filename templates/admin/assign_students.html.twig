@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Зачисление студентов{% endblock %}
+
+{% block body %}
+<h2>Зачислить студента на Дисциплину: {{ discipline.name }}</h2>
+
+{{ form_start(form) }}
+    {{ form_row(form.students) }}
+    <button type="submit" class="btn btn-primary mt-3">Сохранить</button>
+{{ form_end(form) }}
+{% endblock %}

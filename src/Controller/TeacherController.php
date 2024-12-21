@@ -4,9 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Discipline;
 use App\Entity\Grade;
+use App\Entity\Submission;
 use App\Entity\User;
 use App\Form\GradeType;
 use App\Form\AssignStudentsType;
+use App\Form\UserType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,11 +21,24 @@ class TeacherController extends AbstractController
 {
     #[Route('/teacher', name: 'teacher_dashboard')]
     public function dashboard(EntityManagerInterface $em): Response
-    {
-        $disciplines = $em->getRepository(Discipline::class)->findAll();
+{
+    $disciplines = $em->getRepository(Discipline::class)->findAll();
 
-        return $this->render('teacher/index.html.twig', ['disciplines' => $disciplines]);
-    }
+    $form = $this->createFormBuilder()
+        ->add('students', EntityType::class, [
+            'class' => User::class,
+            'choice_label' => 'email',
+            'multiple' => true,
+            'expanded' => true,
+        ])
+        ->getForm();
+
+    
+    return $this->render('teacher/index.html.twig', [
+        'disciplines' => $disciplines,
+        'form' => $form->createView(),
+    ]);
+}
 
     #[Route('/teacher/discipline/add', name: 'teacher_add_discipline')]
     public function addDiscipline(Request $request, EntityManagerInterface $em): Response
@@ -69,78 +85,88 @@ class TeacherController extends AbstractController
         ]);
     }
 
+    #[Route('/teacher/discipline/{id}', name: 'teacher_discipline_details')]
+    public function disciplineDetails(int $id, EntityManagerInterface $em): Response
+    {
+        // Найти дисциплину
+        $discipline = $em->getRepository(Discipline::class)->find($id);
+
+        if (!$discipline) {
+            throw $this->createNotFoundException('Discipline not found.');
+        }
+
+        return $this->render('teacher/discipline_details.html.twig', [
+            'discipline' => $discipline,
+            'students' => $discipline->getStudents(),
+            'grades' => $discipline->getGrades(),
+        ]);
+    }
 
 
 
-    #[Route('/teacher/discipline/{disciplineId}/grade/{gradeId}/edit', name: 'teacher_edit_grade')]
+    #[Route('/teacher/discipline/{disciplineId}/grade/{studentId}/edit', name: 'teacher_edit_grade')]
     public function editGrade(
         int $disciplineId,
-        int $gradeId,
+        int $studentId,
         EntityManagerInterface $em,
         Request $request
     ): Response {
         $discipline = $em->getRepository(Discipline::class)->find($disciplineId);
-        $grade = $em->getRepository(Grade::class)->find($gradeId);
+        $student = $em->getRepository(User::class)->find($studentId);
 
-        if (!$discipline || !$grade || $grade->getDiscipline() !== $discipline) {
-            throw $this->createNotFoundException('Discipline or grade not found.');
+        if (!$discipline || !$student) {
+            throw $this->createNotFoundException('Discipline or student not found.');
         }
 
-        $form = $this->createForm(GradeType::class, $grade);
+        $grade = $em->getRepository(Grade::class)->findOneBy([
+            'discipline' => $discipline,
+            'student' => $student,
+        ]);
+
+        if (!$grade) {
+            $grade = new Grade();
+            $grade->setDiscipline($discipline);
+            $grade->setStudent($student);
+        }
+
+        $form = $this->createFormBuilder($grade)
+            ->add('score', TextType::class, ['label' => 'Grade'])
+            ->getForm();
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($grade);
             $em->flush();
 
             $this->addFlash('success', 'Grade updated successfully!');
-            return $this->redirectToRoute('teacher_grades', ['id' => $disciplineId]);
+            return $this->redirectToRoute('teacher_discipline_details', ['id' => $disciplineId]);
         }
 
         return $this->render('teacher/edit_grade.html.twig', [
-            'discipline' => $discipline,
             'form' => $form->createView(),
+            'discipline' => $discipline,
+            'student' => $student,
         ]);
     }
 
-    #[Route('/teacher/discipline/{id}/assign-students', name: 'teacher_assign_students')]
-    public function assignStudents(
-        int $id,
-        Request $request,
-        EntityManagerInterface $em
-    ): Response {
+    #[Route('/teacher/discipline/{id}/submissions', name: 'teacher_view_submissions')]
+    public function viewSubmissions(int $id, EntityManagerInterface $em): Response
+    {
         $discipline = $em->getRepository(Discipline::class)->find($id);
-    
+
         if (!$discipline) {
             throw $this->createNotFoundException('Discipline not found.');
         }
-    
-        // Получить всех пользователей с ролью ROLE_STUDENT
-        $students = $em->getRepository(User::class)->findByRole('ROLE_STUDENT');
-    
-        // Создать форму
-        $form = $this->createForm(AssignStudentsType::class, $discipline, [
-            'students' => $students,
-        ]);
-    
-        $form->handleRequest($request);
-    
-        if ($form->isSubmitted() && $form->isValid()) {
-            foreach ($form->get('students')->getData() as $student) {
-                $discipline->addStudent($student);
-            }
-    
-            $em->persist($discipline);
-            $em->flush();
-    
-            $this->addFlash('success', 'Students successfully assigned to the discipline!');
-            return $this->redirectToRoute('teacher_dashboard');
-        }
-    
-        return $this->render('teacher/assign_students.html.twig', [
-            'form' => $form->createView(),
+
+        $submissions = $em->getRepository(Submission::class)->findBy(['discipline' => $discipline]);
+
+        return $this->render('teacher/submissions.html.twig', [
             'discipline' => $discipline,
+            'submissions' => $submissions,
         ]);
     }
+
     
 
 }

@@ -4,15 +4,20 @@ namespace App\Controller;
 
 use App\Entity\Discipline;
 use App\Entity\Grade;
+use App\Entity\Submission;
 use App\Entity\User;
+use App\Form\SubmissionType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class StudentController extends AbstractController
 {
+       
+    
     #[Route('/student', name: 'student_dashboard')]
     public function dashboard(EntityManagerInterface $em): Response
     {
@@ -70,4 +75,65 @@ class StudentController extends AbstractController
 
         return $this->redirectToRoute('student_dashboard');
     }
+
+    
+    #[Route('/student/submit/{id}', name: 'student_submit_file')]
+    public function submitFile(
+        int $id,
+        Request $request,
+        EntityManagerInterface $em,
+        ParameterBagInterface $params
+    ): Response {
+        $uploadDir = $params->get('upload_dir');
+
+        $discipline = $em->getRepository(Discipline::class)->find($id);
+
+        if (!$discipline) {
+            throw $this->createNotFoundException('Discipline not found.');
+        }
+
+        $student = $this->getUser();
+        $form = $this->createForm(SubmissionType::class);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $file = $form->get('file')->getData();
+
+            if ($file) {
+                $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $newFilename = uniqid() . '.' . $file->guessExtension();
+
+                // Перемещение файла в каталог загрузки
+                $file->move($uploadDir, $newFilename);
+
+                // Получение объекта Grade или создание нового
+                $grade = $em->getRepository(Grade::class)->findOneBy([
+                    'discipline' => $discipline,
+                    'student' => $student,
+                ]);
+
+                if (!$grade) {
+                    $grade = new Grade();
+                    $grade->setDiscipline($discipline);
+                    $grade->setStudent($student);
+                    $grade->setScore(0); // Установите начальную оценку
+                }
+
+                $grade->setFile($newFilename); // Сохранение имени файла
+                $em->persist($grade);
+                $em->flush();
+
+                $this->addFlash('success', 'Файл успешно прикреплён!');
+                return $this->redirectToRoute('student_dashboard');
+            }
+        }
+
+        return $this->render('student/submit_file.html.twig', [
+            'form' => $form->createView(),
+            'discipline' => $discipline,
+        ]);
+    }
+
+
 }

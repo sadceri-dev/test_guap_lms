@@ -25,6 +25,9 @@ class Grade
     #[ORM\Column(type: 'integer')]
     private $score;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $file = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -63,6 +66,17 @@ class Grade
     {
         $this->score = $score;
 
+        return $this;
+    }
+
+    public function getFile(): ?string
+    {
+        return $this->file;
+    }
+
+    public function setFile(?string $file): self
+    {
+        $this->file = $file;
         return $this;
     }
 }

@@ -7,7 +7,7 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h2 class="text-center mb-4">Login</h2>
+                <h2 class="text-center mb-4">Авторизация</h2>
                 <form method="post">
                     {% if error %}
                         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -18,7 +18,7 @@
                            value="{{ csrf_token('authenticate') }}">
 
                     <div class="mb-3">
-                        <label for="inputEmail" class="form-label">Email</label>
+                        <label for="inputEmail" class="form-label">Почта</label>
                         <input type="email" id="inputEmail" name="email" class="form-control" required autofocus>
                     </div>
                     <div class="mb-3">

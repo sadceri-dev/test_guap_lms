@@ -1,19 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Grade{% endblock %}
+{% block title %}Изменить оценку{% endblock %}
 
 {% block body %}
-<h2>Edit Grade for {{ discipline.name }}</h2>
+<h2>Изменение оценки for {{ student.email }} по {{ discipline.name }}</h2>
 
-<div class="mb-3">
-    <a href="{{ path('teacher_grades', {id: discipline.id}) }}" class="btn btn-secondary">Back to Grades</a>
-</div>
+<a href="{{ path('teacher_discipline_details', { id: discipline.id }) }}" class="btn btn-secondary mb-3">Вернуться назад</a>
 
 {{ form_start(form) }}
-    <div class="mb-3">
-        {{ form_label(form.score, 'Grade') }}
-        {{ form_widget(form.score, {'attr': {'class': 'form-control'}}) }}
-    </div>
-    <button type="submit" class="btn btn-primary">Save Changes</button>
+    {{ form_row(form.score) }}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
 {{ form_end(form) }}
 {% endblock %}

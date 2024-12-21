@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Загрузка файла{% endblock %}
+
+{% block body %}
+<h2>Прикрепить файл к дисциплине: {{ discipline.name }}</h2>
+
+{{ form_start(form) }}
+    <div class="mb-3">
+        {{ form_label(form.file, 'Выберите файл') }}
+        {{ form_widget(form.file, { 'attr': {'class': 'form-control'} }) }}
+        {{ form_errors(form.file) }}
+    </div>
+    <button type="submit" class="btn btn-primary">Загрузить</button>
+{{ form_end(form) }}
+{% endblock %}
